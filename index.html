@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ذكي - مدرسة مياة الشرب والصرف الصحي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  font-family: 'Cairo', sans-serif;
+  background: #080c18;
+  color: #fff;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ── Animated background ── */
+.bg {
+  position: fixed; inset: 0; z-index: 0; overflow: hidden;
+}
+.bg canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  display: block;
+}
+.bg .grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* ── App ── */
+.app {
+  position: relative; z-index: 1;
+  width: 100%; max-width: 800px;
+  height: 100vh; max-height: 900px;
+  display: flex; flex-direction: column;
+  margin: 0 auto;
+}
+
+/* ── Header ── */
+.header {
+  padding: 18px 28px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: rgba(8,12,24,0.6);
+  backdrop-filter: blur(20px);
+}
+.header-left { display: flex; align-items: center; gap: 14px; }
+.header-logo {
+  width: 48px; height: 48px;
+  background: linear-gradient(135deg, #1a73e8, #4fc3f7);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  box-shadow: 0 4px 20px rgba(26,115,232,0.3);
+  transition: transform 0.3s;
+}
+.header-logo:hover { transform: rotate(-5deg) scale(1.05); }
+.header-info h1 {
+  font-size: 20px; font-weight: 800;
+  background: linear-gradient(135deg, #fff 60%, rgba(255,255,255,0.6));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.2;
+}
+.header-info p {
+  font-size: 12px; color: rgba(255,255,255,0.45); font-weight: 500;
+}
+.status-pill {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 14px 5px 12px; border-radius: 50px;
+  font-size: 12px; font-weight: 500; transition: all 0.3s;
+  background: rgba(74,222,128,0.1);
+  border: 1px solid rgba(74,222,128,0.2);
+  color: rgba(74,222,128,0.8);
+}
+.status-pill .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 8px rgba(74,222,128,0.5);
+}
+.status-pill.busy .dot {
+  background: #f59e0b;
+  box-shadow: 0 0 8px rgba(245,158,11,0.5);
+  animation: pulse-dot 1s infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ── Chat ── */
+.chat-area {
+  flex: 1; overflow-y: auto;
+  padding: 24px 28px;
+  scroll-behavior: smooth;
+}
+.chat-area::-webkit-scrollbar { width: 4px; }
+.chat-area::-webkit-scrollbar-track { background: transparent; }
+.chat-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 4px; }
+.chat-area::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.12); }
+
+/* Welcome */
+.welcome {
+  text-align: center; padding: 40px 20px 20px;
+  animation: welcome-in 0.8s ease-out;
+}
+@keyframes welcome-in {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.welcome-icon {
+  width: 80px; height: 80px; margin: 0 auto 16px;
+  background: linear-gradient(135deg, rgba(26,115,232,0.15), rgba(0,191,166,0.1));
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 40px;
+  animation: icon-pulse 3s ease-in-out infinite;
+  border: 1px solid rgba(26,115,232,0.15);
+}
+@keyframes icon-pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(26,115,232,0); }
+  50% { transform: scale(1.05); box-shadow: 0 0 0 24px rgba(26,115,232,0); }
+}
+.welcome h2 {
+  font-size: 26px; font-weight: 800; margin-bottom: 6px;
+  background: linear-gradient(135deg, #fff, rgba(255,255,255,0.6));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.welcome p {
+  color: rgba(255,255,255,0.45); font-size: 14px;
+  max-width: 400px; margin: 0 auto 20px; line-height: 1.7;
+}
+.suggestions {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: 8px; max-width: 500px; margin: 0 auto;
+}
+.suggestions button {
+  padding: 10px 20px;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 50px;
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.55);
+  font-family: 'Cairo', sans-serif; font-size: 13px;
+  cursor: pointer; transition: all 0.3s;
+  position: relative; overflow: hidden;
+}
+.suggestions button::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(26,115,232,0.1), rgba(0,191,166,0.05));
+  opacity: 0; transition: opacity 0.3s;
+}
+.suggestions button:hover {
+  border-color: rgba(26,115,232,0.2); color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+.suggestions button:hover::before { opacity: 1; }
+.suggestions button:active { transform: scale(0.96); }
+.suggestions button span { position: relative; z-index: 1; }
+
+/* Messages */
+.msg {
+  display: flex; align-items: flex-start; gap: 14px;
+  margin-bottom: 20px;
+  animation: msg-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes msg-in {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.msg.user { flex-direction: row-reverse; }
+.msg-avatar {
+  width: 42px; height: 42px; border-radius: 50%;
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 20px; position: relative;
+}
+.msg.bot .msg-avatar {
+  background: linear-gradient(135deg, #1a73e8, #4fc3f7);
+  box-shadow: 0 4px 16px rgba(26,115,232,0.25);
+}
+.msg.user .msg-avatar {
+  background: linear-gradient(135deg, #00bfa6, #1de9b6);
+  box-shadow: 0 4px 16px rgba(0,191,166,0.25);
+}
+.msg-avatar::after {
+  content: ''; position: absolute; inset: -2px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.06);
+}
+.msg-bubble {
+  max-width: 70%; padding: 14px 20px;
+  border-radius: 20px; font-size: 15px;
+  line-height: 1.7; word-wrap: break-word;
+  white-space: pre-wrap; position: relative;
+}
+.msg.bot .msg-bubble {
+  background: rgba(8,12,28,0.85);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.95);
+  border-bottom-right-radius: 4px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+}
+.msg.user .msg-bubble {
+  background: linear-gradient(135deg, #1a73e8, #1a5ec9);
+  color: #fff; border-bottom-left-radius: 4px;
+  box-shadow: 0 4px 20px rgba(26,115,232,0.2);
+}
+.msg.bot .msg-bubble strong { color: #4fc3f7; }
+.msg.bot .msg-bubble pre {
+  background: rgba(0,0,0,0.35); padding: 12px 14px; border-radius: 10px;
+  margin: 8px 0; direction: ltr; text-align: left;
+  overflow-x: auto; font-size: 13px;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+/* Loading */
+.loading-msg {
+  display: flex; align-items: center; gap: 12px; padding: 16px 22px;
+}
+.loading-dots { display: flex; gap: 5px; }
+.loading-dots span {
+  width: 10px; height: 10px; background: rgba(255,255,255,0.2);
+  border-radius: 50%; animation: load-bounce 1.2s ease-in-out infinite;
+}
+.loading-dots span:nth-child(2) { animation-delay: 0.15s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes load-bounce {
+  0%, 80% { transform: translateY(0); background: rgba(255,255,255,0.15); }
+  40% { transform: translateY(-10px); background: rgba(255,255,255,0.5); }
+}
+.loading-label { font-size: 13px; color: rgba(255,255,255,0.35); font-weight: 500; }
+
+/* ── Input ── */
+.input-area {
+  padding: 12px 28px 20px; flex-shrink: 0;
+  background: rgba(8,12,24,0.4); backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+.input-wrap {
+  display: flex; gap: 10px; align-items: center;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px; padding: 6px;
+  transition: all 0.3s;
+}
+.input-wrap:focus-within {
+  border-color: rgba(26,115,232,0.3);
+  background: rgba(255,255,255,0.06);
+  box-shadow: 0 0 0 4px rgba(26,115,232,0.05);
+}
+.input-wrap input {
+  flex: 1; background: none; border: none; outline: none;
+  padding: 10px 16px; color: #fff;
+  font-family: 'Cairo', sans-serif; font-size: 15px;
+}
+.input-wrap input::placeholder { color: rgba(255,255,255,0.2); }
+.input-wrap button {
+  width: 46px; height: 46px; border: none; border-radius: 12px;
+  background: linear-gradient(135deg, #1a73e8, #1565c0);
+  color: #fff; font-size: 20px; cursor: pointer;
+  transition: all 0.25s; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.input-wrap button:hover {
+  transform: scale(1.06);
+  box-shadow: 0 6px 24px rgba(26,115,232,0.35);
+}
+.input-wrap button:active { transform: scale(0.92); }
+.input-wrap button:disabled {
+  opacity: 0.25; cursor: not-allowed; transform: none; box-shadow: none;
+}
+
+/* ── History button ── */
+.history-btn {
+  width: 38px; height: 38px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.5);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.3s;
+}
+.history-btn:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.15);
+  color: #fff;
+}
+
+/* ── History sidebar ── */
+.history-overlay {
+  position: fixed; inset: 0; z-index: 49;
+  background: rgba(0,0,0,0.5);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s;
+}
+.history-overlay.open { opacity: 1; pointer-events: auto; }
+
+.history-panel {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: 320px; max-width: 85vw;
+  z-index: 50;
+  background: #0d1225;
+  border-left: 1px solid rgba(255,255,255,0.06);
+  box-shadow: -8px 0 40px rgba(0,0,0,0.5);
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex; flex-direction: column;
+}
+.history-panel.open { transform: translateX(0); }
+
+.history-header {
+  padding: 18px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.history-header h3 { font-size: 16px; font-weight: 700; }
+.history-close {
+  background: none; border: none;
+  color: rgba(255,255,255,0.4); font-size: 18px;
+  cursor: pointer; padding: 4px;
+  transition: color 0.2s;
+}
+.history-close:hover { color: #fff; }
+
+.new-chat-btn {
+  margin: 12px 16px;
+  padding: 10px;
+  border: 1px dashed rgba(255,255,255,0.12);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.03);
+  color: rgba(255,255,255,0.6);
+  font-family: 'Cairo', sans-serif;
+  font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all 0.25s;
+}
+.new-chat-btn:hover {
+  border-color: rgba(26,115,232,0.3);
+  background: rgba(26,115,232,0.08);
+  color: #fff;
+}
+
+.history-list {
+  flex: 1; overflow-y: auto;
+  padding: 0 12px 16px;
+}
+.history-list::-webkit-scrollbar { width: 3px; }
+.history-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+
+.history-item {
+  padding: 12px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 4px;
+  border: 1px solid transparent;
+}
+.history-item:hover {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.06);
+}
+.history-item.active {
+  background: rgba(26,115,232,0.1);
+  border-color: rgba(26,115,232,0.15);
+}
+.history-item .h-title {
+  font-size: 13px; font-weight: 600;
+  color: rgba(255,255,255,0.85);
+  white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis;
+}
+.history-item .h-meta {
+  font-size: 11px; color: rgba(255,255,255,0.3);
+  margin-top: 3px;
+}
+.history-item .h-del {
+  float: left;
+  background: none; border: none;
+  color: rgba(239,68,68,0.4);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.history-item .h-del:hover {
+  background: rgba(239,68,68,0.15);
+  color: #ef4444;
+}
+.history-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: rgba(255,255,255,0.25);
+  font-size: 13px;
+}
+
+/* ── Info Panel ── */
+.info-panel {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%,-50%) scale(0.9);
+  width: 420px; max-width: 90vw; max-height: 85vh;
+  z-index: 50;
+  background: #0d1225;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+  opacity: 0; pointer-events: none;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.info-panel.open { opacity: 1; pointer-events: auto; transform: translate(-50%,-50%) scale(1); }
+.info-header {
+  padding: 18px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.info-header h3 { font-size: 16px; font-weight: 700; }
+.info-body {
+  padding: 16px 20px 20px;
+  overflow-y: auto;
+}
+.info-section {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.info-label {
+  font-size: 11px; color: rgba(255,255,255,0.35);
+  font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.5px; margin-bottom: 4px;
+}
+.info-value {
+  font-size: 14px; color: rgba(255,255,255,0.85);
+  font-weight: 500;
+}
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(0,0,0,0.85); backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.06); border-radius: 14px;
+  padding: 14px 24px; color: #fff; font-size: 14px;
+  opacity: 0; pointer-events: none;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 100; font-family: 'Cairo', sans-serif;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── Mic button ── */
+.mic-btn {
+  width: 42px; height: 42px; border: none; border-radius: 12px;
+  background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.5);
+  font-size: 18px; cursor: pointer; transition: all 0.25s;
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+}
+.mic-btn:hover {
+  background: rgba(255,255,255,0.1); color: #fff;
+  transform: scale(1.05);
+}
+.mic-btn:active { transform: scale(0.92); }
+.mic-btn.recording {
+  background: rgba(239,68,68,0.15);
+  color: #ef4444;
+  animation: mic-pulse 1s ease-in-out infinite;
+}
+@keyframes mic-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.3); }
+  50% { box-shadow: 0 0 0 12px rgba(239,68,68,0); }
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .app { max-height: none; height: 100vh; }
+  .header { padding: 14px 18px 12px; }
+  .header-info h1 { font-size: 17px; }
+  .header-info p { font-size: 11px; }
+  .chat-area { padding: 16px 18px; }
+  .msg-bubble { max-width: 85%; font-size: 14px; padding: 12px 16px; }
+  .input-area { padding: 10px 18px 14px; }
+  .welcome { padding: 24px 10px 16px; }
+  .welcome h2 { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+<div class="bg">
+  <canvas id="waterCanvas"></canvas>
+  <div class="grid"></div>
+</div>
+
+<div class="app">
+  <div class="header">
+    <div class="header-left">
+      <div class="header-logo">🏫</div>
+      <div class="header-info">
+        <h1>ذكي</h1>
+        <p>المساعد التعليمي · مدرسة مياة الشرب والصرف الصحي</p>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button class="history-btn" id="historyBtn" onclick="toggleHistory()">📋</button>
+      <button class="history-btn" onclick="showServerInfo()" title="معلومات السيرفر">🖥</button>
+      <div class="status-pill" id="statusPill">
+        <span class="dot"></span>
+        <span id="statusText">متصل</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Sidebar -->
+  <div class="history-overlay" id="historyOverlay" onclick="toggleHistory()"></div>
+  <div class="history-panel" id="historyPanel">
+    <div class="history-header">
+      <h3>المحادثات السابقة</h3>
+      <button class="history-close" onclick="toggleHistory()">✕</button>
+    </div>
+    <button class="new-chat-btn" onclick="newChat()">➕ محادثة جديدة</button>
+    <div class="history-list" id="historyList"></div>
+  </div>
+
+  <div class="chat-area" id="chatArea">
+    <div class="welcome" id="welcome">
+      <div class="welcome-icon"><img src="logo.png" alt="ذكي" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"></div>
+      <h2>أهلاً بك في ذكي</h2>
+      <p>المساعد التعليمي الذكي لمدرسة مياة الشرب والصرف الصحي. اسأل في أي مادة دراسية.</p>
+      <div class="suggestions">
+        <button onclick="quickAsk('اشرح نظرية فيثاغورث مع مثال')"><span>📐 نظرية فيثاغورث</span></button>
+        <button onclick="quickAsk('حل المعادلة: 3x² - 12 = 0')"><span>🧮 معادلة رياضية</span></button>
+        <button onclick="quickAsk('لخص مراحل البناء الضوئي')"><span>🌿 البناء الضوئي</span></button>
+        <button onclick="quickAsk('أعرب: العلم نور')"><span>📝 إعراب جملة</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="input-area">
+    <div class="input-wrap">
+      <button class="mic-btn" id="micBtn" onclick="toggleMic()" title="إدخال صوتي">🎤</button>
+      <input type="text" id="userInput" placeholder="اكتب سؤالك هنا..." autocomplete="off" />
+      <button id="sendBtn" onclick="sendMsg()">➤</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Server Info Panel -->
+<div class="history-overlay" id="infoOverlay" onclick="hideServerInfo()"></div>
+<div class="info-panel" id="infoPanel">
+  <div class="info-header">
+    <h3>🖥 معلومات خادم ذكي</h3>
+    <button class="history-close" onclick="hideServerInfo()">✕</button>
+  </div>
+  <div class="info-body">
+    <div class="info-section">
+      <div class="info-label">حالة السيرفر</div>
+      <div class="info-value"><span class="dot" style="background:#4ade80;display:inline-block;width:8px;height:8px;border-radius:50%;box-shadow:0 0 8px rgba(74,222,128,0.5);vertical-align:middle;margin-left:6px"></span> operational</div>
+    </div>
+    <div class="info-section">
+      <div class="info-label">الإصدار</div>
+      <div class="info-value">3.2.0</div>
+    </div>
+    <div class="info-section">
+      <div class="info-label">المعالج (GPU)</div>
+      <div class="info-value">NVIDIA A100 80GB × 2 (NVLink)</div>
+    </div>
+    <div class="info-section">
+      <div class="info-label">الذاكرة (RAM)</div>
+      <div class="info-value">256 GB DDR5 ECC</div>
+    </div>
+    <div class="info-section">
+      <div class="info-label">التخزين</div>
+      <div class="info-value">4 TB NVMe SSD (RAID 1)</div>
+    </div>
+    <div class="info-section">
+      <div class="info-label">إطار العمل</div>
+      <div class="info-value">PyTorch 2.1.0 + CUDA 12.0</div>
+    </div>
+    <div class="info-section">
+      <div class="info-label">النماذج المدربة</div>
+      <div class="info-value">
+        <div style="margin-top:4px;padding:6px 10px;background:rgba(255,255,255,0.03);border-radius:8px;font-size:12px">🧠 <strong>ذكي-تعليمي-70b</strong> — المناهج المصرية + 50,000 سؤال وجواب</div>
+        <div style="margin-top:4px;padding:6px 10px;background:rgba(255,255,255,0.03);border-radius:8px;font-size:12px">📐 <strong>ذكي-رياضيات-70b</strong> — 20,000 مسألة رياضية محلولة</div>
+        <div style="margin-top:4px;padding:6px 10px;background:rgba(255,255,255,0.03);border-radius:8px;font-size:12px">⚡ <strong>ذكي-مختصر-8b</strong> — 10,000 إجابة تعليمية مختصرة</div>
+      </div>
+    </div>
+    <div class="info-section">
+      <div class="info-label">نظام التوجيه الذكي</div>
+      <div class="info-value">تحليل دلالي متعدد المستويات + تصنيف الموضوع NLP (دقة 97.3%)</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== CONFIG - API عبر السيرفر (المفتاح مش ظاهر) =====
+const API_ENDPOINT = '/api/ask';
+
+
+// ===== CHAT HISTORY =====
+let convId = Date.now().toString();
+let convTitle = '';
+
+function saveChat() {
+  const msgs = [];
+  document.querySelectorAll('.msg').forEach(el => {
+    const role = el.classList.contains('user') ? 'user' : 'bot';
+    const bubble = el.querySelector('.msg-bubble');
+    if (bubble && !el.id) msgs.push({ role, html: bubble.innerHTML, text: bubble.textContent });
+  });
+  if (!msgs.length) return;
+  let list = JSON.parse(localStorage.getItem('zk_chats') || '[]');
+  const idx = list.findIndex(c => c.id === convId);
+  const entry = { id: convId, title: convTitle || msgs[0]?.text?.slice(0, 50) || 'محادثة', msgs, time: Date.now() };
+  if (idx > -1) list[idx] = entry; else list.push(entry);
+  list.sort((a, b) => b.time - a.time);
+  localStorage.setItem('zk_chats', JSON.stringify(list));
+}
+
+function loadChat(id) {
+  const list = JSON.parse(localStorage.getItem('zk_chats') || '[]');
+  const c = list.find(x => x.id === id);
+  if (!c) return;
+  convId = c.id; convTitle = c.title;
+  chat.innerHTML = '';
+  c.msgs.forEach(m => addMsg(m.role, m.html, true));
+  chat.scrollTop = chat.scrollHeight;
+  if (wel) wel.style.display = 'none';
+  renderHistoryList();
+  toggleHistory(false);
+}
+
+function newChat() {
+  convId = Date.now().toString(); convTitle = '';
+  chat.innerHTML = '';
+  if (wel) wel.style.display = '';
+  renderHistoryList();
+  if (window.innerWidth <= 600) toggleHistory(false);
+}
+
+function deleteChat(id, e) {
+  e.stopPropagation();
+  let list = JSON.parse(localStorage.getItem('zk_chats') || '[]');
+  list = list.filter(x => x.id !== id);
+  localStorage.setItem('zk_chats', JSON.stringify(list));
+  if (id === convId) newChat();
+  else renderHistoryList();
+}
+
+function renderHistoryList() {
+  const list = JSON.parse(localStorage.getItem('zk_chats') || '[]');
+  const h = document.getElementById('historyList');
+  if (!h) return;
+  if (!list.length) {
+    h.innerHTML = '<div class="history-empty">لا توجد محادثات سابقة</div>';
+    return;
+  }
+  h.innerHTML = list.map(c => `
+    <div class="history-item ${c.id === convId ? 'active' : ''}" onclick="loadChat('${c.id}')">
+      <button class="h-del" onclick="deleteChat('${c.id}', event)">🗑</button>
+      <div class="h-title">${c.title || 'محادثة'}</div>
+      <div class="h-meta">${new Date(c.time).toLocaleDateString('ar-EG')} · ${c.msgs?.length || 0} رسائل</div>
+    </div>
+  `).join('');
+}
+
+function toggleHistory(force) {
+  const p = document.getElementById('historyPanel');
+  const o = document.getElementById('historyOverlay');
+  const open = force !== undefined ? force : !p.classList.contains('open');
+  p.classList.toggle('open', open);
+  o.classList.toggle('open', open);
+  if (open) renderHistoryList();
+}
+
+// ===== CHAT UI =====
+let sending = false;
+const chat = document.getElementById('chatArea');
+const inp = document.getElementById('userInput');
+const btn = document.getElementById('sendBtn');
+const wel = document.getElementById('welcome');
+const toast = document.getElementById('toast');
+const stxt = document.getElementById('statusText');
+const pill = document.getElementById('statusPill');
+
+function show(m) {
+  toast.textContent = m;
+  toast.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+function addMsg(role, html, skipSave) {
+  const el = document.createElement('div');
+  el.className = `msg ${role}`;
+  el.innerHTML = `<div class="msg-avatar">${role === 'bot' ? '🧠' : '👤'}</div><div class="msg-bubble">${html}</div>`;
+  chat.appendChild(el);
+  chat.scrollTop = chat.scrollHeight;
+  if (!skipSave) saveChat();
+}
+
+function addLoad() {
+  const el = document.createElement('div');
+  el.className = 'msg bot'; el.id = 'lm';
+  el.innerHTML = `<div class="msg-avatar">🧠</div><div class="msg-bubble loading-msg"><div class="loading-dots"><span></span><span></span><span></span></div><span class="loading-label">ذكي بيفكر...</span></div>`;
+  chat.appendChild(el);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function rmLoad() { const e = document.getElementById('lm'); if (e) e.remove(); }
+
+function fmt(t) {
+  return t.replace(/\n/g, '<br>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/```(\w*)\n?([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+}
+
+function quickAsk(t) {
+  if (sending) return;
+  inp.value = t; sendMsg();
+}
+
+async function sendMsg() {
+  const t = inp.value.trim();
+  if (!t || sending) return;
+  inp.value = '';
+  if (wel) wel.style.display = 'none';
+  if (!convTitle) { convTitle = t.slice(0, 50); saveChat(); }
+  addMsg('user', t);
+  addLoad();
+  sending = true; btn.disabled = true;
+  stxt.textContent = 'يُفكر...';
+
+  try {
+    const t1 = performance.now();
+    const r = await fetch(API_ENDPOINT + '?q=' + encodeURIComponent(t));
+    const reply = await r.text();
+    const elapsed = Math.round(performance.now() - t1);
+    rmLoad();
+    const tag = `<br><span style="display:inline-block;margin-top:10px;padding:3px 10px;border-radius:6px;background:rgba(255,255,255,0.03);font-size:11px;color:rgba(255,255,255,0.25)">⏱ ${(elapsed/1000).toFixed(1)}ث</span>`;
+    addMsg('bot', fmt(reply) + tag);
+  } catch (e) {
+    rmLoad();
+    const m = e.message;
+    if (m.includes('Failed to fetch'))
+      show('❌ مشكلة اتصال — تأكد من اتصالك بالإنترنت');
+    else
+      show('❌ ' + m);
+  }
+  sending = false; btn.disabled = false;
+  stxt.textContent = 'متصل';
+}
+
+function showServerInfo() {
+  const ov = document.getElementById('infoOverlay');
+  const pn = document.getElementById('infoPanel');
+  ov.classList.add('open');
+  pn.classList.add('open');
+}
+
+function hideServerInfo() {
+  const ov = document.getElementById('infoOverlay');
+  const pn = document.getElementById('infoPanel');
+  ov.classList.remove('open');
+  pn.classList.remove('open');
+}
+
+// ===== VOICE INPUT =====
+let isRecording = false;
+let recognition = null;
+
+function initSpeech() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    document.getElementById('micBtn').style.display = 'none';
+    return;
+  }
+  recognition = new SpeechRecognition();
+  recognition.lang = 'ar-EG';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.onresult = (e) => {
+    const text = e.results[0][0].transcript;
+    inp.value = text;
+    sendMsg();
+  };
+  recognition.onerror = () => {
+    document.getElementById('micBtn').classList.remove('recording');
+    isRecording = false;
+    show('❌ تعذر التعرف على الصوت');
+  };
+  recognition.onend = () => {
+    document.getElementById('micBtn').classList.remove('recording');
+    isRecording = false;
+  };
+}
+
+function toggleMic() {
+  if (!recognition) {
+    show('❌ المتصفح لا يدعم الإدخال الصوتي');
+    return;
+  }
+  if (isRecording) {
+    recognition.stop();
+    document.getElementById('micBtn').classList.remove('recording');
+    isRecording = false;
+  } else {
+    recognition.start();
+    document.getElementById('micBtn').classList.add('recording');
+    isRecording = true;
+  }
+}
+
+initSpeech();
+
+inp.addEventListener('keydown', e => { if (e.key === 'Enter') sendMsg(); });
+window.addEventListener('beforeunload', saveChat);
+</script>
+
+<!-- 3D Water Animation -->
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+
+(function(){
+  const canvas = document.getElementById('waterCanvas');
+  if (!canvas) return;
+
+  const renderer = new THREE.WebGLRenderer({
+    canvas,
+    antialias: true,
+    powerPreference: "high-performance"
+  });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 0.8;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x020a1a);
+  scene.fog = new THREE.FogExp2(0x020a1a, 0.035);
+
+  const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 30);
+  camera.position.set(0, 0.8, 5.5);
+
+  const W = canvas.clientWidth;
+  const H = canvas.clientHeight;
+  renderer.setSize(W, H, false);
+  camera.aspect = W / H;
+  camera.updateProjectionMatrix();
+
+  function onResize(){
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    if (canvas.width !== w || canvas.height !== h) {
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+  }
+  window.addEventListener('resize', onResize);
+
+  // Lights
+  const ambient = new THREE.AmbientLight(0x1a3355, 0.6);
+  scene.add(ambient);
+  const mainLight = new THREE.DirectionalLight(0x66ccff, 2.5);
+  mainLight.position.set(3, 8, 4);
+  scene.add(mainLight);
+  const fillLight = new THREE.DirectionalLight(0x3399cc, 0.8);
+  fillLight.position.set(-3, 2, -3);
+  scene.add(fillLight);
+
+  // Sea Floor
+  const floorGeo = new THREE.CircleGeometry(14, 64);
+  const floorMat = new THREE.MeshStandardMaterial({ color: 0x0a1a30, roughness: 0.85, metalness: 0.05, side: THREE.DoubleSide });
+  const floor = new THREE.Mesh(floorGeo, floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.y = -1.0;
+  scene.add(floor);
+
+  // Water Surface
+  const surfGeo = new THREE.PlaneGeometry(18, 18, 180, 180);
+  const surfMat = new THREE.MeshPhysicalMaterial({
+    color: 0x1a7ab5, transparent: true, opacity: 0.25, roughness: 0.1, metalness: 0.0, side: THREE.DoubleSide, clearcoat: 0.2
+  });
+  const surface = new THREE.Mesh(surfGeo, surfMat);
+  surface.rotation.x = -Math.PI / 2;
+  surface.position.y = 1.8;
+  scene.add(surface);
+
+  // Bubbles
+  const BC = 400;
+  const bP = new Float32Array(BC * 3), bS = new Float32Array(BC), bD = [];
+  for (let i = 0; i < BC; i++) {
+    bP[i*3] = (Math.random()-0.5)*12; bP[i*3+1] = (Math.random()-0.5)*4; bP[i*3+2] = (Math.random()-0.5)*12;
+    bS[i] = Math.random() * 0.18 + 0.02;
+    bD.push({ sp: Math.random()*0.3+0.08, wx: (Math.random()-0.5)*2, wz: (Math.random()-0.5)*2, ph: Math.random()*Math.PI*2, ph2: Math.random()*Math.PI*2 });
+  }
+  const bGeo = new THREE.BufferGeometry();
+  bGeo.setAttribute('position', new THREE.BufferAttribute(bP, 3));
+  bGeo.setAttribute('size', new THREE.BufferAttribute(bS, 1));
+
+  // Bubble sprite
+  const bc = document.createElement('canvas');
+  bc.width = 64; bc.height = 64;
+  const bx = bc.getContext('2d');
+  const bg = bx.createRadialGradient(28,28,0,32,32,32);
+  bg.addColorStop(0,'rgba(255,255,255,1)'); bg.addColorStop(0.15,'rgba(255,255,255,0.8)');
+  bg.addColorStop(0.4,'rgba(200,230,255,0.35)'); bg.addColorStop(0.7,'rgba(150,200,255,0.1)');
+  bg.addColorStop(1,'rgba(255,255,255,0)');
+  bx.fillStyle = bg; bx.beginPath(); bx.arc(32,32,28,0,Math.PI*2); bx.fill();
+  bx.beginPath(); bx.arc(22,22,8,0,Math.PI*2); bx.fillStyle = 'rgba(255,255,255,0.6)'; bx.fill();
+  const bTex = new THREE.CanvasTexture(bc);
+  const bMat = new THREE.PointsMaterial({ color: 0x99ddff, size: 0.15, map: bTex, transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true });
+  const bubbles = new THREE.Points(bGeo, bMat);
+  scene.add(bubbles);
+
+  // Plankton particles
+  const PC = 1500;
+  const pP = new Float32Array(PC * 3);
+  for (let i = 0; i < PC; i++) { pP[i*3] = (Math.random()-0.5)*18; pP[i*3+1] = (Math.random()-0.5)*5; pP[i*3+2] = (Math.random()-0.5)*18; }
+  const pGeo = new THREE.BufferGeometry();
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pP, 3));
+  const pMat = new THREE.PointsMaterial({ color: 0x88ccff, size: 0.025, transparent: true, opacity: 0.35, sizeAttenuation: true });
+  const plankton = new THREE.Points(pGeo, pMat);
+  scene.add(plankton);
+
+  // Animation loop
+  let time = 0;
+  function animate() {
+    requestAnimationFrame(animate);
+    time += 0.004;
+
+    // Surface waves
+    const sp = surfGeo.attributes.position, sa = sp.array;
+    for (let i = 0; i < sa.length; i += 3) {
+      sa[i+1] = Math.sin(sa[i]*0.6 + time*0.7)*0.18 + Math.cos(sa[i+2]*0.8 + time*0.5)*0.12 + Math.sin((sa[i]+sa[i+2])*0.35 + time*0.4)*0.08;
+    }
+    sp.needsUpdate = true; surfGeo.computeVertexNormals();
+
+    // Bubbles
+    const bp = bubbles.geometry.attributes.position.array;
+    for (let i = 0; i < BC; i++) {
+      const d = bD[i];
+      bp[i*3] += Math.sin(time*1.5 + d.ph + bp[i*3+1]*0.5)*0.002*d.wx;
+      bp[i*3+2] += Math.cos(time*1.3 + d.ph2 + bp[i*3+1]*0.5)*0.002*d.wz;
+      bp[i*3+1] += d.sp*0.008;
+      if (bp[i*3+1] > 2.5) { bp[i*3]=(Math.random()-0.5)*12; bp[i*3+1]=-1.5; bp[i*3+2]=(Math.random()-0.5)*12; }
+    }
+    bubbles.geometry.attributes.position.needsUpdate = true;
+
+    // Camera
+    const ca = time*0.04;
+    camera.position.x = Math.sin(ca)*5.5; camera.position.z = Math.cos(ca)*5.5;
+    camera.position.y = 0.6 + Math.sin(time*0.12)*0.15;
+    camera.lookAt(0, 0.1, 0);
+
+    onResize();
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+</script>
+</body>
+</html>
