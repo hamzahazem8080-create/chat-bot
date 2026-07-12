@@ -1,0 +1,9 @@
+{
+  "name": "zaki-robot",
+  "version": "1.0.0",
+  "description": "ذكي - شات بوت مدرسة مياة الشرب والصرف الصحي",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
